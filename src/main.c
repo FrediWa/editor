@@ -1,10 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <termios.h>
 
 #include "includes/editor.h"
 
 int main(int argc, char** argv)
 {
+    struct termios old_termios = saveTerminalSettings();
+    printf(CLEAR_SCREEN);
+    printf("\033[H"); 
     int editorModes = 0;
     FILE* fp;
     fp = fopen(argv[1], "r");
@@ -58,6 +62,7 @@ int main(int argc, char** argv)
         }
     }
 
+    restoreTerminalSettings(old_termios);
     // printf("Hello World  %d\n", input);
     return(0);
 }

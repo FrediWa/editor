@@ -5,6 +5,16 @@
 
 #include "includes/editor.h"
 
+struct termios saveTerminalSettings() {
+    struct termios old_termios;
+    tcgetattr(STDIN_FILENO, &old_termios);
+    return old_termios;
+}
+
+void restoreTerminalSettings(struct termios old_termios) {
+    tcsetattr(STDIN_FILENO, TCSANOW, &old_termios);
+}
+
 void enableRawMode() {
     struct termios raw;
     tcgetattr(STDIN_FILENO, &raw);
