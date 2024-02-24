@@ -2,20 +2,12 @@
 #include <stdlib.h>
 #include <termios.h>
 #include <unistd.h>
+#include <sys/ioctl.h>
 
 #include "includes/editor.h"
 
-struct termios saveTerminalSettings() {
-    struct termios old_termios;
-    tcgetattr(STDIN_FILENO, &old_termios);
-    return old_termios;
-}
-
-void restoreTerminalSettings(struct termios old_termios) {
-    tcsetattr(STDIN_FILENO, TCSANOW, &old_termios);
-}
-
-void enableRawMode() {
+void enableRawMode() 
+{
     struct termios raw;
     tcgetattr(STDIN_FILENO, &raw);
     raw.c_lflag &= ~(ECHO | ICANON);
@@ -23,7 +15,8 @@ void enableRawMode() {
     tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw);
 }
 
-void disableRawMode() {
+void disableRawMode() 
+{
     struct termios raw;
     tcgetattr(STDIN_FILENO, &raw);
     raw.c_lflag |= ICANON;
@@ -39,11 +32,24 @@ char readKey() {
     return c;
 }
 
-void drawCharacters(FILE* fp){
+void drawCharacters(FILE* fp)
+{
     char ch = fgetc(fp);
     while(ch != EOF)
     {
         printf("%c", ch);
         ch = fgetc(fp);
     }
+}
+void drawControlBar()
+{
+    
+    printf("\033[41mThis text has a red background.\033[0m\n");
+}
+
+void drawEditorWindow()
+{
+    struct winsize w;
+    ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+    printf("Number of lines: %d\n", w.ws_row);
 }

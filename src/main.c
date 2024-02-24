@@ -2,11 +2,12 @@
 #include <stdlib.h>
 #include <termios.h>
 
+
 #include "includes/editor.h"
 
 int main(int argc, char** argv)
 {
-    struct termios old_termios = saveTerminalSettings();
+    printf(ASB_ENTER);
     printf(CLEAR_SCREEN);
     printf("\033[H"); 
     int editorModes = 0;
@@ -20,6 +21,8 @@ int main(int argc, char** argv)
     }
 
     drawCharacters(fp);
+    drawEditorWindow();
+    drawControlBar();
     enableRawMode();
     
     char current_char;
@@ -61,8 +64,7 @@ int main(int argc, char** argv)
             break;
         }
     }
-
-    restoreTerminalSettings(old_termios);
     // printf("Hello World  %d\n", input);
+    printf(ASB_EXIT);
     return(0);
 }
