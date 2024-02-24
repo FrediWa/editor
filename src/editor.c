@@ -25,31 +25,69 @@ void disableRawMode()
     tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw);
 }
 
-
 char readKey() {
     char c;
     read(STDIN_FILENO, &c, 1);
     return c;
 }
 
-void drawCharacters(FILE* fp)
+void read_file(EditorContext* ctx, FILE* fp)
 {
-    char ch = fgetc(fp);
-    while(ch != EOF)
-    {
-        printf("%c", ch);
-        ch = fgetc(fp);
+    int loc = 0;
+    ctx->lines = malloc(sizeof(line) * DEFAULT_LOC);
+
+    while (fgets(ctx->lines[loc], LINE_MAX_LENGTH, fp) != NULL) {
+        printf(ctx->lines[0]);
+        loc++;
     }
-}
-void drawControlBar()
-{
-    
-    printf("\033[41mThis text has a red background.\033[0m\n");
+    ctx->loc = loc;
 }
 
-void drawEditorWindow()
+void drawEditorContents(EditorContext* ctx)
 {
+    int visible_lines = ctx->window_h -1;
+    printf(ANSI_ESCAPE_CURSOR_POSITION, 2, 0);
+    // printf("\033[31mNumber of lines: %d Mode: %s\n\033[0m", ctx->window_h, (ctx->edit_mode ? "Edit Mode" : "Command Mode"));
+    for (int i = 0; i < visible_lines; i++)
+    {
+        printf("%4d %s", i, ctx->lines[i]);
+    }
+    
+}
+void drawControlBar(EditorContext* ctx)
+{   
+    printf(ANSI_ESCAPE_CURSOR_POSITION, 0, 0);
+    printf("\033[31m");
+    printf("%s | %s | %dL  \n", ctx->file_name, (ctx->edit_mode ? "Edit Mode" : "Command Mode"), ctx->loc);
+    printf("\033[0m");
+}
+
+void drawEditorWindow(EditorContext* ctx)
+{
+    // printf(CLEAR_SCREEN);
+    drawControlBar(ctx);
+    drawEditorContents(ctx);
+}
+
+void enter_edit_mode(EditorContext* ctx)
+{
+    ctx->edit_mode = 1;
+    drawControlBar(ctx);
+}
+
+void exit_edit_mode(EditorContext* ctx)
+{
+    ctx->edit_mode = 0;
+    drawControlBar(ctx);
+}
+
+void init_editor(EditorContext* ctx)
+{
+    ctx->edit_mode = 0;
+    ctx->current_line = 0;
+    ctx->current_char = 0;
+
     struct winsize w;
     ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
-    printf("Number of lines: %d\n", w.ws_row);
+    ctx->window_h = w.ws_row;
 }

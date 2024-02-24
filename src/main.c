@@ -1,28 +1,29 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <termios.h>
-
+#include <signal.h>
 
 #include "includes/editor.h"
 
 int main(int argc, char** argv)
 {
-    printf(ASB_ENTER);
-    printf(CLEAR_SCREEN);
-    printf("\033[H"); 
+
+    EditorContext ctx;
+    init_editor(&ctx);
+    ctx.file_name = argv[1];
+    printf(ASB_ENTER, CLEAR_SCREEN, HOME_CURSOR);
     int editorModes = 0;
+
     FILE* fp;
     fp = fopen(argv[1], "r");
-
     if ( fp == NULL)
     {
         printf("File input required\n");
         return(1);
     }
+    read_file(&ctx, fp);
+    drawEditorWindow(&ctx);
 
-    drawCharacters(fp);
-    drawEditorWindow();
-    drawControlBar();
     enableRawMode();
     
     char current_char;
@@ -49,18 +50,16 @@ int main(int argc, char** argv)
                     case '2':
                         if (readKey() == '~')
                         {
-                            BITWISE_SET(editorModes, INSERT_MODE);
-                            printf("Edit mode\n");
+                            enter_edit_mode(&ctx);
                         }
                         break;
                 }
             }
             else
             {
-                BITWISE_UNSET(editorModes, INSERT_MODE);
-                printf("Command mode\n");
+                exit_edit_mode(&ctx);
             }   
-        } else if (current_char == 'q' && (editorModes & INSERT_MODE) == 0) {
+        } else if (current_char == 'q' && !ctx.edit_mode) {
             break;
         }
     }
