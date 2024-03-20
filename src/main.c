@@ -22,43 +22,52 @@ int main(int argc, char** argv)
         return(1);
     }
     read_file(&ctx, fp);
-    drawEditorWindow(&ctx);
+    draw_editor_window(&ctx);
 
-    enableRawMode();
+    enable_raw_mode();
     
     char current_char;
     while (1)
     {
-        current_char = readKey();
+        current_char = read_key();
         if (current_char == '\033') { // ANSI escape sequence
-            char ch = readKey();
+            char ch = read_key();
             if (ch == '['){
-                ch = readKey();
+                ch = read_key();
                 switch (ch) {
                     case 'A':
                         // printf("Up arrow key pressed\n");
+                        ctx.current_line--;
                         break;
                     case 'B':
+                        ctx.current_line++;
+                        printf(ANSI_ESCAPE_CURSOR_POSITION, ctx.current_line, ctx.current_char);
                         // printf("Down arrow key pressed\n");
                         break;
                     case 'C':
                         // printf("Right arrow key pressed\n");
+                        ctx.current_char++;
                         break;
                     case 'D':
                         // printf("Left arrow key pressed\n");
+                        ctx.current_char--;
                         break;
                     case '2':
-                        if (readKey() == '~')
+                        if (read_key() == '~')
                         {
                             enter_edit_mode(&ctx);
                         }
                         break;
+
+                    
                 }
             }
             else
             {
                 exit_edit_mode(&ctx);
             }   
+            
+        // draw_editor_window(&ctx);
         } else if (current_char == 'q' && !ctx.edit_mode) {
             break;
         }

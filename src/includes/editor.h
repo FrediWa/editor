@@ -18,14 +18,14 @@ typedef struct {
     int edit_mode;
     int window_h;
     char* file_name;
+    char* screen_buffer;
 } EditorContext;
 
-void restoreTerminalSettings(struct termios old_termios);
-struct termios saveTerminalSettings(void);
-void enableRawMode(void);
-void disableRawMode(void);
-char readKey(void);
-void drawEditorWindow(EditorContext* ctx);
+
+void enable_raw_mode(void);
+void disable_raw_mode(void);
+char read_key(void);
+void draw_editor_window(EditorContext* ctx);
 void enter_edit_mode(EditorContext* ctx);
 void exit_edit_mode(EditorContext* ctx);
 void init_editor(EditorContext* ctx);
