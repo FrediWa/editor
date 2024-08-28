@@ -4,6 +4,7 @@
 #include <signal.h>
 
 #include "includes/editor.h"
+#include "includes/control.h"
 
 int main(int argc, char** argv)
 {
@@ -26,52 +27,11 @@ int main(int argc, char** argv)
 
     enable_raw_mode();
     
-    char current_char;
-    while (1)
+    int next_commmand = 0;
+    while (next_command != EXIT)
     {
-        current_char = read_key();
-        if (current_char == '\033') { // ANSI escape sequence
-            char ch = read_key();
-            if (ch == '['){
-                ch = read_key();
-                switch (ch) {
-                    case 'A':
-                        // printf("Up arrow key pressed\n");
-                        ctx.current_line--;
-                        break;
-                    case 'B':
-                        ctx.current_line++;
-                        printf(ANSI_ESCAPE_CURSOR_POSITION, ctx.current_line, ctx.current_char);
-                        // printf("Down arrow key pressed\n");
-                        break;
-                    case 'C':
-                        // printf("Right arrow key pressed\n");
-                        ctx.current_char++;
-                        break;
-                    case 'D':
-                        // printf("Left arrow key pressed\n");
-                        ctx.current_char--;
-                        break;
-                    case '2':
-                        if (read_key() == '~')
-                        {
-                            enter_edit_mode(&ctx);
-                        }
-                        break;
-
-                    
-                }
-            }
-            else
-            {
-                exit_edit_mode(&ctx);
-            }   
-            
-        // draw_editor_window(&ctx);
-        } else if (current_char == 'q' && !ctx.edit_mode) {
-            break;
-        }
-    }
+        request_input(0);
+    } 
     // printf("Hello World  %d\n", input);
     printf(ASB_EXIT);
     return(0);

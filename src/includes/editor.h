@@ -1,3 +1,8 @@
+#ifndef __EDITOR_H__
+#define __EDITOR_H__
+
+#include <stdio.h>
+
 #define CLEAR_SCREEN "\033[2J"
 #define ASB_ENTER    "\e[?1049h"
 #define ASB_EXIT     "\e[?1049l"
@@ -30,3 +35,5 @@ void enter_edit_mode(EditorContext* ctx);
 void exit_edit_mode(EditorContext* ctx);
 void init_editor(EditorContext* ctx);
 void read_file(EditorContext* ctx, FILE* fp);
+
+#endif 
