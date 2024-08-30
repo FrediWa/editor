@@ -9,7 +9,19 @@
 #define PREV_LINE 5
 #define ENTER_EDIT_MODE 6
 #define EXIT_EDIT_MODE 7
+#define QUIT 8
+#define SPACE 9
+#define BACKSPACE 10
+#define ENTER 11
+/* 32-127 are reserved for characters the user should be able to type */
 
-int request_input(int command_mode);
+#define ANSI_ESCAPE_SEQUENCE 27
+#define ANSI_CONTROL_SEQUENCE_INTRODUCER 91
+
+#define COMMAND_MODE 0
+#define INSERT_MODE 1
+
+int get_input(int mode);
+char read_key(void);
 
 #endif

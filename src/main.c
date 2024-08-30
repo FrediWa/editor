@@ -4,7 +4,6 @@
 #include <signal.h>
 
 #include "includes/editor.h"
-#include "includes/control.h"
 
 int main(int argc, char** argv)
 {
@@ -22,17 +21,16 @@ int main(int argc, char** argv)
         printf("File input required\n");
         return(1);
     }
+    printf("File opened\n");
+
     read_file(&ctx, fp);
     draw_editor_window(&ctx);
 
+
     enable_raw_mode();
     
-    int next_commmand = 0;
-    while (next_command != EXIT)
-    {
-        request_input(0);
-    } 
-    // printf("Hello World  %d\n", input);
+    poll_keypresses(&ctx);
+
     printf(ASB_EXIT);
     return(0);
 }

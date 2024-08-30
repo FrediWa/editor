@@ -3,8 +3,10 @@
 #include <termios.h>
 #include <unistd.h>
 #include <sys/ioctl.h>
+#include <string.h>
 
 #include "includes/editor.h"
+#include "includes/control.h"
 
 void enable_raw_mode() 
 {
@@ -25,19 +27,13 @@ void disable_raw_mode()
     tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw);
 }
 
-char read_key() {
-    char c;
-    read(STDIN_FILENO, &c, 1);
-    return c;
-}
-
 void read_file(EditorContext* ctx, FILE* fp)
 {
     int loc = 0;
     ctx->lines = malloc(sizeof(line) * DEFAULT_LOC);
 
-    while (fgets(ctx->lines[loc], LINE_MAX_LENGTH, fp) != NULL) {
-        printf(ctx->lines[0]);
+    while (fgets(ctx->lines[loc], LINE_MAX_LENGTH, fp) != NULL) 
+    {
         loc++;
     }
     ctx->loc = loc;
@@ -57,30 +53,65 @@ void draw_control_bar(EditorContext* ctx)
 {   
     int last_line = ctx->window_h;
     printf(ANSI_ESCAPE_CURSOR_POSITION, last_line, 0);
-    snprintf(ctx->screen_buffer, LINE_MAX_LENGTH ,"\033[31m %s | %s | %dL | %d, %d      \033[0m", ctx->file_name, (ctx->edit_mode ? "Edit Mode" : "Command Mode"), ctx->loc, ctx->current_line, ctx->current_char);
+
+    snprintf(ctx->screen_buffer, LINE_MAX_LENGTH ,
+            "\033[31m %s | %s | %dL | %d, %d \033[0m", 
+            ctx->file_name, 
+            (ctx->editor_mode ? "Edit Mode" : "Command Mode"),
+            ctx->loc,
+            ctx->current_line,
+            ctx->current_char
+    );
 }
 
 void draw_editor_window(EditorContext* ctx)
 {
-    draw_control_bar(ctx);
-    printf(ctx->screen_buffer);
+    printf("Hello World\n");
+    // draw_control_bar(ctx);
+    // printf("(%s)", ctx->screen_buffer);
+    snprintf(ctx->screen_buffer, LINE_MAX_LENGTH ,
+            "\033[31m %s | %s | %dL | %d, %d \033[0m", 
+            ctx->file_name, 
+            (ctx->editor_mode ? "Edit Mode" : "Command Mode"),
+            ctx->loc,
+            ctx->current_line,
+            ctx->current_char);
+
+    printf("%s\n", ctx->screen_buffer);
 }
 
-void enter_edit_mode(EditorContext* ctx)
+void enter_editor_mode(EditorContext* ctx)
 {
-    ctx->edit_mode = 1;
+    ctx->editor_mode = 1;
     draw_control_bar(ctx);
 }
 
-void exit_edit_mode(EditorContext* ctx)
+void exit_editor_mode(EditorContext* ctx)
 {
-    ctx->edit_mode = 0;
+    ctx->editor_mode = 0;
     draw_control_bar(ctx);
+}
+
+void insert_character(char c, line line, int position)
+{
+    size_t characters = strlen(line);
+    if(characters + 1 == LINE_MAX_LENGTH) 
+        return; // Line full.
+
+    if(position < characters) {
+        strcpy(line+position+1, line+position);
+    }
+
+    line[position] = c;
+}
+
+void handle_command(EditorContext* ctx) {
+
 }
 
 void init_editor(EditorContext* ctx)
 {
-    ctx->edit_mode = 0;
+    ctx->editor_mode = 1;
     ctx->current_line = 0;
     ctx->current_char = 0;
 
@@ -90,3 +121,32 @@ void init_editor(EditorContext* ctx)
 
     ctx->screen_buffer = malloc(sizeof(line) * ctx->window_h);
 }
+
+void poll_keypresses(EditorContext* ctx) {
+    while(1) {
+        char action = get_input(ctx->editor_mode); 
+
+        if(action >= 32 && action <= 127) {
+            char new_character = (char) action;
+            insert_character(new_character, ctx->lines[ctx->current_line], ctx->current_char);
+        }
+
+        switch(action) {
+                case NEXT_CHAR:
+                    ctx->current_char++;
+                    break;
+                case PREV_CHAR:
+                    ctx->current_char--;
+                    break;
+                case NEXT_LINE: 
+                    ctx->current_line++;
+                    break;
+                case PREV_LINE: 
+                    ctx->current_line--;
+                    break;           
+            }
+               
+    }
+    
+
+};

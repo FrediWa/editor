@@ -20,20 +20,23 @@ typedef struct {
     int current_char;
     line* lines;
     int lines_size;
-    int edit_mode;
+    int editor_mode;
     int window_h;
     char* file_name;
     char* screen_buffer;
+    int file_name_given;
+    char debug[20];
+    // ScrollContext? {start, end}
 } EditorContext;
-
 
 void enable_raw_mode(void);
 void disable_raw_mode(void);
-char read_key(void);
 void draw_editor_window(EditorContext* ctx);
-void enter_edit_mode(EditorContext* ctx);
-void exit_edit_mode(EditorContext* ctx);
+void enter_editor_mode(EditorContext* ctx);
+void exit_editor_mode(EditorContext* ctx);
 void init_editor(EditorContext* ctx);
 void read_file(EditorContext* ctx, FILE* fp);
+void poll_keypresses(EditorContext* ctx);
+
 
 #endif 
